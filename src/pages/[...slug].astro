@@ -1,0 +1,134 @@
+---
+import NotesList from '../components/NotesList.astro';
+import PostsList from '../components/PostsList.astro';
+import ArticleLayout from '../layouts/ArticleLayout.astro';
+import Layout from '../layouts/Layout.astro';
+import { getAllContentPages, getNotes, getPosts } from '../data/content';
+import { paginateItems } from '../data/pagination';
+
+export function getStaticPaths() {
+  const contentPaths = getAllContentPages().map((entry) => ({
+    params: {
+      slug: entry.slug.replace(/^\/+|\/+$/g, '')
+    },
+    props: {
+      kind: 'content',
+      entry
+    }
+  }));
+
+  const notePagination = paginateItems(getNotes(), 1);
+  const notePagePaths = Array.from(
+    { length: Math.max(0, notePagination.totalPages - 1) },
+    (_, index) => ({
+      params: {
+        slug: `page/${index + 2}`
+      },
+      props: {
+        kind: 'notes-pagination',
+        page: index + 2
+      }
+    })
+  );
+
+  const postPagination = paginateItems(getPosts(), 1);
+  const postPagePaths = Array.from(
+    { length: Math.max(0, postPagination.totalPages - 1) },
+    (_, index) => ({
+      params: {
+        slug: `posts/page/${index + 2}`
+      },
+      props: {
+        kind: 'posts-pagination',
+        page: index + 2
+      }
+    })
+  );
+
+  return [...contentPaths, ...notePagePaths, ...postPagePaths];
+}
+
+const routeKind = Astro.props.kind;
+const entry = routeKind === 'content' ? Astro.props.entry : null;
+const Content = entry?.Content;
+const notesPagination =
+  routeKind === 'notes-pagination' ? paginateItems(getNotes(), Astro.props.page) : null;
+const postsPagination =
+  routeKind === 'posts-pagination' ? paginateItems(getPosts(), Astro.props.page) : null;
+const totalPosts = routeKind === 'posts-pagination' ? getPosts().length : 0;
+---
+
+{
+  routeKind === 'content' && entry && Content ? (
+    <ArticleLayout
+      title={entry.title}
+      date={entry.formattedDate}
+      description={entry.description}
+    >
+      <Content />
+    </ArticleLayout>
+  ) : routeKind === 'notes-pagination' && notesPagination ? (
+    <Layout title={`zhongpeng | Page ${notesPagination.currentPage}`}>
+      <section class="notes-page">
+        <NotesList
+          notes={notesPagination.items}
+          eyebrow="Zhongpeng"
+          eyebrowCursor={true}
+          eyebrowVariant="hero"
+          pagination={{
+            ...notesPagination,
+            basePath: '/'
+          }}
+        />
+      </section>
+    </Layout>
+  ) : routeKind === 'posts-pagination' && postsPagination ? (
+    <Layout title={`Posts | Page ${postsPagination.currentPage} | zhongpeng`}>
+      <section class="posts-page">
+        <header class="posts-page__header">
+          <h1 class="posts-page__title">Posts</h1>
+          <p class="posts-page__count">{totalPosts} writings</p>
+        </header>
+
+        <PostsList
+          posts={postsPagination.items}
+          pagination={{
+            ...postsPagination,
+            basePath: '/posts/'
+          }}
+        />
+      </section>
+    </Layout>
+  ) : null
+}
+
+<style>
+  .notes-page {
+    padding-top: 0;
+  }
+
+  .posts-page {
+    padding-top: 1.75rem;
+  }
+
+  .posts-page__header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+
+  .posts-page__title {
+    margin: 0;
+    color: var(--color-heading);
+    font-size: clamp(2rem, 1.7rem + 1.2vw, 2.5rem);
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    font-weight: 600;
+  }
+
+  .posts-page__count {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 1.05rem;
+  }
+</style>

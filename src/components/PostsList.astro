@@ -1,0 +1,14 @@
+﻿---
+import ContentList from './ContentList.astro';
+import type { ContentListItem } from '../data/content';
+import type { ContentPagination } from '../data/pagination';
+
+interface Props {
+  posts: ContentListItem[];
+  pagination?: ContentPagination;
+}
+
+const { posts, pagination } = Astro.props;
+---
+
+<ContentList items={posts} pagination={pagination} />

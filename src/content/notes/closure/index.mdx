@@ -1,0 +1,186 @@
+---
+title: 函数闭包
+slug: "/notes/about-closure"
+date: 2025-11-09
+description: "Understanding Python closures and decorators: how inner functions retain access to outer scope variables, cell objects in memory, and their application in decorators."
+---
+
+不妨先看一下普通函数对局部变量的状态管理是怎么样的：
+
+```py
+def func():
+    sum = 0
+    sum += 1
+    print(sum)
+    
+func() # 1
+# 调用结束 sum被回收
+
+func() # 1
+func() # 1
+```
+
+进入函数入口 `def func()` 首先会在栈上创建func的栈帧，并将初始化sum变量使其指向整数0，此时sum的引用次数为1。当执行完 `print(sum)` 后，函数执行完毕，调用结束，对sum的引用减一并自动收回该变量,sum只在func执行的过程中存在，当我们调用新的 `func` 时重新初始化sum为0。
+
+上述是普通函数对变量的管理方式：函数销毁，其栈帧上存活的局部变量跟着一起消失。那么如果我们想在外层函数结束时，仍保持函数内部变量的持久化该怎么实现呢？这就引出了函数闭包的概念。
+
+函数闭包(Closure)通过在一个函数内部定义一个嵌套函数，并在内部函数中使用外部函数的局部变量。即使外部函数执行完毕，这时它的内部局部变量按理会消失，但因为内部函数还在引用该外部变量，在外部函数中定义的局部变量并不会被GC回收，Python，JS等语言为这个内部函数持续保留这个外部变量引用的结构就是闭包。
+
+代码示例如下：
+```PY
+def outer_func():
+    count = 0
+
+    def inner_func(x): # 内部函数引用外部变量
+        nonlocal count
+        count += x
+
+        return count
+
+    return inner_func
+
+outer_func_01 = outer_func() 
+"""
+此时outer_func返回，栈帧消失，内层的inner_func赋给outer_func01
+inner_func继续存活且持续引用外部的局部变量count
+"""
+print(outer_func_01(5)) # 5 
+print(outer_func_01(4)) # 9
+```
+
+可以看到，当执行完 `outer_func_01 = outer_func()`语句时，其内部的count变量并没有被释放，在接下来的两条打印语句中，实现了count变量的持久化，并根据x的值累加到了9。
+而普通函数中无法实现这种变量持久化的操作，函数销毁时，栈帧中的变量也销毁了，也就无从谈起变量持久化操作。
+
+## 发生了什么
+
+在闭包函数中，当外部变量被内部函数引用时，会被包装成Cell对象。Cell对象的 `cell_contents` 指向堆上的整数变量0。outer_func栈帧上的x指向在堆上分配的Cell对象，内部函数inner_func的count变量也指向该Cell对象。
+
+即使外部函数的栈帧被销毁，对Cell对象的引用减1，而因为内部函数仍引用着count的值,Cell仍存活在堆上。
+
+通过 `outer_fun_01.__closure__` 我们可以查看在 `inner_func`对象中创建的Cell对象，即被闭包函数所引用的变量：
+
+```py
+def outer_func():
+    count = 0
+    sum = 1.0
+
+    def inner_add_func():
+        nonlocal count # 对count的引用
+        nonlocal sum
+        
+        count += 1
+        sum += count
+
+        return sum
+
+    return inner_add_func
+
+outer_fun_01 = outer_func() # 此时外层函数已经结束，并将内部inner_add_func作为返回值赋给变量outer_fun_01
+print(outer_func.__closure__) # None
+print(outer_fun_01.__closure__) # 内部inner_add_func
+
+"""
+(<cell at 0x00000133BE48FCD0: int object at 0x00007FF9F6B85308>, 
+<cell at 0x00000133BE48FC40: float object at 0x00000133BE3BA950>)
+"""
+
+print(outer_fun_01.__closure__[0].cell_contents) # 0
+```
+
+可以看到，结果返回了一个元组：`outer_func.__closure__`为None，不是闭包函数，该对象不含Cell对象的引用。`outer_fun_01` 即为返回的内部函数 `inner_func`，打印 `outer_fun_01.__closure__`可以看到该函数引用了两个Cell对象，并给出了他们的地址。这两个Cell又分别引用了整数count和浮点数sum。
+
+## 装饰器
+
+python的装饰器底层就是闭包函数，而我们常见的 `@wrapper` 的形式是封装的语法糖。
+
+```py
+def wrapper(func):
+    def inner(*args, **kwargs):
+        print("this will display before func")
+        print(func(*args, **kwargs))
+        print("this will display after func executed")
+
+    return inner
+
+def func(a, b):
+    print("func is executing")
+    return a + b
+
+func = wrapper(func)
+func(1, 2)
+
+"""
+this will display before func
+func is executing
+3
+this will display after func executed
+"""
+
+```
+
+使用python的装饰器语法糖我们无需通过 `func = wrapper(func)` 手动创建wrapper对象，而是可以简洁地调用 `func` 的函数实现同样的效果：
+```py
+def wrapper(func):
+    def inner(*args, **kwargs):
+        print("this will display before func")
+        print(func(*args, **kwargs))
+        print("this will display after func executed")
+
+    return inner
+
+@wrapper
+def func(a, b):
+    print("func is executing")
+    return a + b
+
+func(1, 2)
+
+"""
+this will display before func
+func is executing
+3
+this will display after func executed
+"""
+```
+
+### 再加一层
+
+我们也可以试着分析一下嵌套了多层装饰器的函数代码：
+
+```py
+def A(func):
+    def inner():
+        print("A before")
+        func()
+        print("A after")
+    return inner
+
+def B(func):
+    def inner():
+        print("B before")
+        func()
+        print("B after")
+    return inner
+
+@A
+@B
+def test():
+    print("main func")
+
+test()
+
+"""
+A before
+B before
+main func
+B after
+A after
+"""
+```
+不使用装饰器，上述代码等价于 `test = A(B(test))`，按照函数递归顺序执行的顺序不难分析出结果。
+
+## 总结
+
+从上面可以看出，闭包的概念和逻辑行为其实可以理解为一种轻量级的类的创建和实例化的过程：闭包封装了局部变量和它的一个运行时环境，当我们实例化后outer_fun后实现对局部变量的持久化访问。但是一般不会拿闭包取管理状态。
+
+闭包在实际开发中有着广泛应用，装饰器利用闭包保存被装饰函数的引用，函数工厂通过闭包生成携带特定配置的函数实例，回调函数借助闭包维持上下文状态等仍需要详细了解。

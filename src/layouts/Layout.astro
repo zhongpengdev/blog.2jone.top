@@ -1,0 +1,273 @@
+---
+import Footer from '../components/Footer.vue';
+import Header from '../components/Header.astro';
+import { siteConfig } from '../config/site';
+import 'katex/dist/katex.min.css';
+import siteAvatar from '../assets/site-avatar.png';
+import geistMonoBold from '../assets/fonts/GeistMono-Bold.ttf';
+
+interface Props {
+  title?: string;
+}
+
+const { title = siteConfig.title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/png" href={siteAvatar.src} />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <script is:inline>
+      (() => {
+        const storageKey = 'color-mode-preference';
+        const stored = localStorage.getItem(storageKey);
+        const mode =
+          stored === 'dark' || stored === 'light' || stored === 'system'
+            ? stored
+            : 'system';
+        const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const resolved = mode === 'system' ? (systemDark ? 'dark' : 'light') : mode;
+        document.documentElement.dataset.theme = resolved;
+      })();
+    </script>
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <Header
+      siteTitle={siteConfig.title}
+      basePath={siteConfig.basePath}
+      currentPath={Astro.url.pathname}
+      navigation={siteConfig.navigation}
+    />
+    <main id="main-content" class="page-shell">
+      <slot />
+      <Footer
+        client:load
+        copyrightName={siteConfig.footer.copyrightName}
+        socialLinks={siteConfig.footer.socialLinks}
+      />
+    </main>
+
+    <script is:inline>
+      (() => {
+        if (window.__littleBlogPageTransitionInit) return;
+        window.__littleBlogPageTransitionInit = true;
+
+        const TRANSITION_KEY = 'little-blog-pending-navigation';
+
+        const normalizePath = (value) => {
+          if (!value) return '/';
+          const withLeadingSlash = value.startsWith('/') ? value : `/${value}`;
+          const normalized = withLeadingSlash.replace(/\/{2,}/g, '/');
+          return normalized === '/' ? normalized : normalized.replace(/\/+$/, '');
+        };
+
+        const isModifiedEvent = (event) =>
+          event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0;
+
+        const persistPendingNavigation = (url) => {
+          try {
+            sessionStorage.setItem(
+              TRANSITION_KEY,
+              JSON.stringify({
+                from: normalizePath(window.location.pathname),
+                to: normalizePath(url.pathname),
+                at: Date.now(),
+              }),
+            );
+          } catch {
+            // Ignore storage failures and fall back to plain navigation.
+          }
+        };
+
+        document.addEventListener('click', (event) => {
+          const link = event.target.closest('a[href]');
+          if (!(link instanceof HTMLAnchorElement)) return;
+          if (event.defaultPrevented || isModifiedEvent(event)) return;
+          if (link.classList.contains('skip-link')) return;
+          if (link.target && link.target !== '_self') return;
+          if (link.hasAttribute('download')) return;
+
+          const rawHref = link.getAttribute('href') || '';
+          if (
+            !rawHref ||
+            rawHref.startsWith('mailto:') ||
+            rawHref.startsWith('tel:') ||
+            rawHref.startsWith('javascript:')
+          ) {
+            return;
+          }
+
+          const url = new URL(link.href, window.location.href);
+          if (url.origin !== window.location.origin) return;
+
+          const currentUrl = new URL(window.location.href);
+          const isHashOnlyNavigation =
+            url.pathname === currentUrl.pathname &&
+            url.search === currentUrl.search &&
+            url.hash &&
+            url.hash !== currentUrl.hash;
+
+          if (isHashOnlyNavigation) return;
+
+          const targetPath = normalizePath(url.pathname);
+          const shell = document.querySelector('[data-home-about-shell]');
+          const isShellTarget = targetPath === '/' || targetPath === '/about';
+
+          if (shell && isShellTarget) {
+            return;
+          }
+
+          if (
+            targetPath === normalizePath(currentUrl.pathname) &&
+            url.search === currentUrl.search &&
+            url.hash === currentUrl.hash
+          ) {
+            return;
+          }
+
+          persistPendingNavigation(url);
+        });
+      })();
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  @font-face {
+    font-family: 'Geist Mono Blog';
+    src: url(${geistMonoBold}) format('truetype');
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+  }
+
+  :root {
+    --color-background: #fafafa;
+    --color-text: #5f6368;
+    --color-heading: #111111;
+    --color-nav: #888888;
+    --color-nav-active: #333333;
+    --color-nav-hover: #555555;
+    --color-muted: #6f7377;
+    --color-border-soft: rgba(128, 128, 128, 0.1);
+    --color-focus: #111111;
+    --color-toggle-track: rgba(128, 128, 128, 0.15);
+    --color-toggle-pill: #6f7377;
+    --color-toggle-icon: #6f7377;
+    --color-toggle-active-icon: #ffffff;
+    --color-toggle-hover: rgba(128, 128, 128, 0.1);
+    --color-skill-bg: rgba(120, 120, 120, 0.08);
+    --color-skill-border: rgba(120, 120, 120, 0.18);
+    --color-skill-text: #4f5458;
+    --color-skill-mark-bg: rgba(17, 17, 17, 0.08);
+    --color-note-card-top: rgba(255, 255, 255, 0.95);
+    --color-note-card-bottom: rgba(245, 245, 247, 0.95);
+    --color-code-bg: #f7f7f8;
+    --color-selection-bg: #111111;
+    --color-selection-text: #ffffff;
+  }
+
+  :root[data-theme='dark'] {
+    --color-background: #171717;
+    --color-text: #aaaaaa;
+    --color-heading: #f3f3f3;
+    --color-nav: #999999;
+    --color-nav-active: #e0e0e0;
+    --color-nav-hover: #cccccc;
+    --color-muted: #b0b0b0;
+    --color-border-soft: rgba(255, 255, 255, 0.1);
+    --color-focus: #f3f3f3;
+    --color-toggle-track: rgba(255, 255, 255, 0.12);
+    --color-toggle-pill: #8a8a8a;
+    --color-toggle-icon: #b0b0b0;
+    --color-toggle-active-icon: #111111;
+    --color-toggle-hover: rgba(255, 255, 255, 0.08);
+    --color-skill-bg: rgba(255, 255, 255, 0.06);
+    --color-skill-border: rgba(255, 255, 255, 0.12);
+    --color-skill-text: #d0d0d0;
+    --color-skill-mark-bg: rgba(255, 255, 255, 0.12);
+    --color-note-card-top: rgba(32, 32, 34, 0.96);
+    --color-note-card-bottom: rgba(22, 22, 24, 0.96);
+    --color-code-bg: #1a1a1c;
+    --color-selection-bg: #f3f3f3;
+    --color-selection-text: #111111;
+  }
+
+  html {
+    box-sizing: border-box;
+    background: var(--color-background);
+    color: var(--color-text);
+    overflow-y: scroll;
+    scrollbar-gutter: stable both-edges;
+    font-family:
+      'Microsoft YaHei', 'PingFang SC', -apple-system, BlinkMacSystemFont, 'SF Pro Display',
+      'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: inherit;
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    background: var(--color-background);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+
+  ::selection {
+    background: var(--color-selection-bg);
+    color: var(--color-selection-text);
+  }
+
+  a {
+    color: inherit;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  .skip-link {
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+    z-index: 100;
+    padding: 0.5rem 0.75rem;
+    background: #111111;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 0.25rem;
+    transform: translateY(-200%);
+    transition: transform 0.2s ease;
+  }
+
+  .skip-link:focus {
+    transform: translateY(0);
+  }
+
+  .page-shell {
+    width: min(100%, 780px);
+    margin: 0 auto;
+    padding: 0 1.5rem 4rem;
+  }
+
+  @media (min-width: 640px) {
+    .page-shell {
+      padding-inline: 2rem;
+    }
+  }
+
+</style>

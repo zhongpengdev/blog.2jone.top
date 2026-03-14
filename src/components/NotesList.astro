@@ -1,0 +1,32 @@
+﻿---
+import ContentList from './ContentList.astro';
+import type { ContentListItem } from '../data/content';
+import type { ContentPagination } from '../data/pagination';
+
+interface Props {
+  notes: ContentListItem[];
+  eyebrow?: string;
+  showDescription?: boolean;
+  eyebrowCursor?: boolean;
+  eyebrowVariant?: 'default' | 'hero';
+  pagination?: ContentPagination;
+}
+
+const {
+  notes,
+  eyebrow,
+  showDescription = false,
+  eyebrowCursor = false,
+  eyebrowVariant = 'default',
+  pagination,
+} = Astro.props;
+---
+
+<ContentList
+  items={notes}
+  eyebrow={eyebrow}
+  showDescription={showDescription}
+  eyebrowCursor={eyebrowCursor}
+  eyebrowVariant={eyebrowVariant}
+  pagination={pagination}
+/>

@@ -1,0 +1,11 @@
+---
+import HomeAboutShell from '../components/HomeAboutShell.astro';
+import { getNotes } from '../data/content';
+import Layout from '../layouts/Layout.astro';
+
+const notes = getNotes();
+---
+
+<Layout title="About | zhongpeng">
+  <HomeAboutShell initialView="about" notes={notes} />
+</Layout>

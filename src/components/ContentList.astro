@@ -1,0 +1,165 @@
+﻿---
+import Pagination from './Pagination.astro';
+import TerminalText from './TerminalText.astro';
+import type { ContentListItem } from '../data/content';
+import type { ContentPagination } from '../data/pagination';
+
+interface Props {
+  items: ContentListItem[];
+  eyebrow?: string;
+  showDescription?: boolean;
+  eyebrowCursor?: boolean;
+  eyebrowVariant?: 'default' | 'hero';
+  pagination?: ContentPagination;
+}
+
+const {
+  items,
+  eyebrow,
+  showDescription = false,
+  eyebrowCursor = false,
+  eyebrowVariant = 'default',
+  pagination,
+} = Astro.props;
+---
+
+<section class:list={['content-list', { 'content-list--with-header': Boolean(eyebrow) }]}>
+  {
+    eyebrow && (
+      <div
+        class:list={[
+          'content-list__header',
+          { 'content-list__header--hero': eyebrowVariant === 'hero' },
+        ]}
+      >
+        <p
+          class:list={[
+            'content-list__eyebrow',
+            { 'content-list__eyebrow--hero': eyebrowVariant === 'hero' },
+          ]}
+        >
+          {eyebrowCursor ? <TerminalText>{eyebrow}</TerminalText> : eyebrow}
+        </p>
+      </div>
+    )
+  }
+
+  <div class="content-list__items">
+    {
+      items.map((item) => (
+        <article class="content-list__item">
+          <a href={`${item.slug}/`} class="content-list__title">
+            {item.title}
+          </a>
+          <p class="content-list__meta">
+            <time datetime={item.date}>{item.formattedDate}</time>
+          </p>
+          {showDescription && item.description && (
+            <p class="content-list__description">{item.description}</p>
+          )}
+        </article>
+      ))
+    }
+  </div>
+
+  {pagination && <Pagination {...pagination} />}
+</section>
+
+<style>
+  .content-list {
+    margin: 3rem 0 3.5rem;
+    color: var(--color-text);
+  }
+
+  .content-list--with-header {
+    margin: 0 0 2rem;
+    padding-top: 2rem;
+    animation: content-list-fade 0.45s ease;
+  }
+
+  .content-list__header {
+    margin-bottom: 2.5rem;
+  }
+
+  .content-list__header--hero {
+    margin-bottom: 3.7rem;
+  }
+
+  .content-list__eyebrow {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .content-list__eyebrow--hero {
+    color: var(--color-heading);
+    font-family:
+      'Geist Mono Blog', 'SFMono-Regular', 'Cascadia Mono', 'Cascadia Code', Consolas, monospace;
+    font-size: clamp(2rem, 2.45rem + 1vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: 0;
+    font-synthesis: none;
+    text-transform: none;
+  }
+
+  .content-list__item {
+    margin-bottom: 1.6rem;
+  }
+
+  .content-list__item:last-child {
+    margin-bottom: 0;
+  }
+
+  .content-list__title {
+    color: var(--color-heading);
+    text-decoration: none;
+    font-size: clamp(1rem, 0.95rem + 0.5vw, 1.25rem);
+    line-height: 1.35;
+    font-weight: 600;
+    transition: color 0.2s ease, opacity 0.2s ease;
+  }
+
+  .content-list__title:hover {
+    text-decoration: underline;
+  }
+
+  .content-list__meta {
+    margin: 0.35rem 0 0;
+    color: var(--color-muted);
+    font-size: clamp(0.875rem, 0.84rem + 0.2vw, 1rem);
+    line-height: 1.6;
+  }
+
+  .content-list__description {
+    margin: 0.9rem 0 0;
+    color: var(--color-text);
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 639px) {
+    .content-list--with-header {
+      padding-top: 1.5rem;
+    }
+
+    .content-list__header--hero {
+      margin-bottom: 2.8rem;
+    }
+  }
+
+  @keyframes content-list-fade {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>

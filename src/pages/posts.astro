@@ -1,0 +1,77 @@
+﻿---
+import Layout from '../layouts/Layout.astro';
+import PostsList from '../components/PostsList.astro';
+import { getPosts } from '../data/content';
+import { paginateItems } from '../data/pagination';
+
+const allPosts = getPosts();
+const pagination = paginateItems(allPosts, 1);
+---
+
+<Layout title="Posts | zhongpeng">
+  <section class="posts-page">
+    <header class="posts-page__header">
+      <h1 class="posts-page__title">Posts</h1>
+      <p class="posts-page__count">{allPosts.length} writings</p>
+    </header>
+
+    {
+      allPosts.length > 0 ? (
+        <PostsList
+          posts={pagination.items}
+          pagination={{
+            ...pagination,
+            basePath: '/posts/'
+          }}
+        />
+      ) : (
+        <div class="posts-page__empty">
+          <p>No posts yet in <code>src/content/posts</code>.</p>
+          <p>Move your migrated markdown or mdx files there and this page will render them automatically.</p>
+        </div>
+      )
+    }
+  </section>
+</Layout>
+
+<style>
+  .posts-page {
+    padding-top: 1.75rem;
+  }
+
+  .posts-page__header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+
+  .posts-page__title {
+    margin: 0;
+    color: var(--color-heading);
+    font-size: clamp(2rem, 1.7rem + 1.2vw, 2.5rem);
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    font-weight: 600;
+  }
+
+  .posts-page__count {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 1.05rem;
+  }
+
+  .posts-page__empty {
+    margin: 3rem 0 3.5rem;
+    color: var(--color-text);
+    font-size: 1rem;
+    line-height: 1.8;
+  }
+
+  .posts-page__empty code {
+    padding: 0.1rem 0.35rem;
+    border-radius: 0.25rem;
+    background: var(--color-skill-bg);
+    border: 1px solid var(--color-skill-border);
+    font-size: 0.92em;
+  }
+</style>

@@ -1,0 +1,47 @@
+---
+interface Props {
+  wrapperClass?: string;
+}
+
+const { wrapperClass } = Astro.props;
+---
+
+<span class:list={['terminal-text', wrapperClass]}>
+  <span class="terminal-text__copy"><slot /></span>
+  <span class="terminal-text__cursor" aria-hidden="true">_</span>
+</span>
+
+<style>
+  .terminal-text {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.02em;
+  }
+
+  .terminal-text__copy {
+    display: inline-block;
+  }
+
+  .terminal-text__cursor {
+    display: inline-block;
+    min-width: 0.56ch;
+    user-select: none;
+    animation: terminal-cursor-blink 1.2s infinite;
+  }
+
+  @keyframes terminal-cursor-blink {
+    0%,
+    45% {
+      opacity: 1;
+    }
+
+    60%,
+    98% {
+      opacity: 0;
+    }
+
+    100% {
+      opacity: 1;
+    }
+  }
+</style>
