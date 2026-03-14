@@ -1,8 +1,7 @@
 ---
-import Footer from '../components/Footer.vue';
+import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import { siteConfig } from '../config/site';
-import 'katex/dist/katex.min.css';
 import siteAvatar from '../assets/site-avatar.png';
 import geistMonoBold from '../assets/fonts/GeistMono-Bold.ttf';
 
@@ -46,7 +45,6 @@ const { title = siteConfig.title } = Astro.props;
     <main id="main-content" class="page-shell">
       <slot />
       <Footer
-        client:load
         copyrightName={siteConfig.footer.copyrightName}
         socialLinks={siteConfig.footer.socialLinks}
       />
