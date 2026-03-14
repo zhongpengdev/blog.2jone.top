@@ -1,5 +1,4 @@
-<script setup lang="ts">
-import Icon from './Icon.vue';
+﻿<script setup lang="ts">
 import ThemeToggle from './ThemeToggle.vue';
 
 defineProps<{
@@ -7,7 +6,6 @@ defineProps<{
   socialLinks: ReadonlyArray<{
     label: string;
     href: string;
-    icon: string;
   }>;
 }>();
 
@@ -25,20 +23,10 @@ const year = new Date().getFullYear();
           :key="link.href"
           :href="link.href"
           class="site-footer__social-link"
-          :aria-label="link.label"
           :target="link.href.startsWith('http') ? '_blank' : undefined"
           :rel="link.href.startsWith('http') ? 'noopener noreferrer' : undefined"
         >
-          <Icon
-            :name="
-              link.icon === 'email'
-                ? 'lucide:mail'
-                : link.icon === 'github'
-                  ? 'simple-icons:github'
-                  : 'simple-icons:zhihu'
-            "
-            :size="19"
-          />
+          {{ link.label }}
         </a>
       </div>
     </div>
@@ -75,14 +63,17 @@ const year = new Date().getFullYear();
 .site-footer__socials {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.9rem;
+  flex-wrap: wrap;
 }
 
 .site-footer__social-link {
   display: inline-flex;
   align-items: center;
   color: var(--color-muted);
-  opacity: 0.6;
+  opacity: 0.75;
+  text-decoration: none;
+  font-size: 0.92rem;
   transition: color 0.3s ease, opacity 0.3s ease;
 }
 
@@ -94,7 +85,7 @@ const year = new Date().getFullYear();
 .site-footer__social-link:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 3px;
-  border-radius: 999px;
+  border-radius: 3px;
 }
 
 @media (max-width: 639px) {
@@ -115,7 +106,7 @@ const year = new Date().getFullYear();
   }
 
   .site-footer__socials {
-    gap: 1rem;
+    gap: 0.85rem;
   }
 
   .site-footer :deep(.theme-toggle) {

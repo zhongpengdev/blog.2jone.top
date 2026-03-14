@@ -1,8 +1,6 @@
 ﻿---
-import Pagination from './Pagination.astro';
 import TerminalText from './TerminalText.astro';
 import type { ContentListItem } from '../data/content';
-import type { ContentPagination } from '../data/pagination';
 
 interface Props {
   items: ContentListItem[];
@@ -10,7 +8,6 @@ interface Props {
   showDescription?: boolean;
   eyebrowCursor?: boolean;
   eyebrowVariant?: 'default' | 'hero';
-  pagination?: ContentPagination;
 }
 
 const {
@@ -19,7 +16,6 @@ const {
   showDescription = false,
   eyebrowCursor = false,
   eyebrowVariant = 'default',
-  pagination,
 } = Astro.props;
 ---
 
@@ -61,8 +57,6 @@ const {
       ))
     }
   </div>
-
-  {pagination && <Pagination {...pagination} />}
 </section>
 
 <style>

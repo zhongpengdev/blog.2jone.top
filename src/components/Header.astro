@@ -47,7 +47,7 @@ const resolveHref = (base: string, slug = '') => {
 const normalizedCurrentPath = normalizePath(currentPath);
 const homeHref = resolveHref(basePath);
 const aboutHref = resolveHref(basePath, '/about');
-const isHomePage = normalizedCurrentPath === '/' || /^\/page\/\d+$/.test(normalizedCurrentPath);
+const isHomePage = normalizedCurrentPath === '/';
 const isShellPage = isHomePage || normalizedCurrentPath === '/about';
 ---
 
@@ -106,10 +106,10 @@ const isShellPage = isHomePage || normalizedCurrentPath === '/about';
               href={href}
               class:list={['site-header__link', { 'site-header__link--active': isActive }]}
               data-nav-link
-              data-nav-label={`${item.title}_`}
+              data-nav-label={item.title}
               data-astro-prefetch
             >
-              {isActive ? <TerminalText>{item.title}</TerminalText> : item.title}
+              {item.title}
             </a>
           );
         })
@@ -133,7 +133,7 @@ const isShellPage = isHomePage || normalizedCurrentPath === '/about';
 
     const isShellPath = (value) => {
       const path = normalizePath(value);
-      return path === '/' || path === '/about' || /^\/page\/\d+$/.test(path);
+      return path === '/' || path === '/about';
     };
 
     const readPendingNavigation = () => {
@@ -166,7 +166,7 @@ const isShellPage = isHomePage || normalizedCurrentPath === '/about';
       const path = normalizePath(targetPath ?? window.location.pathname);
       const headers = document.querySelectorAll('[data-site-header]');
       const navLinks = document.querySelectorAll('[data-nav-link]');
-      const isHome = path === '/' || /^\/page\/\d+$/.test(path);
+      const isHome = path === '/';
       const isShell = isHome || path === '/about';
       const preserveAboutLink = options.preserveAboutLink === true;
       const syncNavLinks = options.syncNavLinks !== false;
@@ -417,6 +417,3 @@ const isShellPage = isHomePage || normalizedCurrentPath === '/about';
     }
   }
 </style>
-
-
-

@@ -14,9 +14,6 @@
   "dependencies": {
     "@astrojs/mdx": "^5.0.0",
     "@astrojs/vue": "^6.0.0",
-    "@iconify-json/lucide": "^1.2.97",
-    "@iconify-json/simple-icons": "^1.2.73",
-    "@iconify/vue": "^5.0.0",
     "astro": "^6.0.4",
     "katex": "^0.16.38",
     "vue": "^3.5.30"

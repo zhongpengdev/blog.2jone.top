@@ -2,15 +2,13 @@
 import AboutSection from './AboutSection.astro';
 import NotesList from './NotesList.astro';
 import type { ContentListItem } from '../data/content';
-import type { ContentPagination } from '../data/pagination';
 
 interface Props {
   initialView: 'home' | 'about';
   notes: ContentListItem[];
-  notesPagination?: ContentPagination;
 }
 
-const { initialView, notes, notesPagination } = Astro.props;
+const { initialView, notes } = Astro.props;
 ---
 
 <div
@@ -30,7 +28,6 @@ const { initialView, notes, notesPagination } = Astro.props;
       eyebrow="Zhongpeng"
       eyebrowCursor={true}
       eyebrowVariant="hero"
-      pagination={notesPagination}
     />
   </section>
 

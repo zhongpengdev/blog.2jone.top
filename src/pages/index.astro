@@ -1,20 +1,11 @@
 ﻿---
 import HomeAboutShell from '../components/HomeAboutShell.astro';
 import { getNotes } from '../data/content';
-import { paginateItems } from '../data/pagination';
 import Layout from '../layouts/Layout.astro';
 
-const allNotes = getNotes();
-const pagination = paginateItems(allNotes, 1);
+const notes = getNotes();
 ---
 
 <Layout title="zhongpeng">
-  <HomeAboutShell
-    initialView="home"
-    notes={pagination.items}
-    notesPagination={{
-      ...pagination,
-      basePath: '/'
-    }}
-  />
+  <HomeAboutShell initialView="home" notes={notes} />
 </Layout>

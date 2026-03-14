@@ -1,4 +1,4 @@
-export const siteConfig = {
+﻿export const siteConfig = {
   title: 'zhongpeng',
   basePath: '/',
   navigation: [
@@ -10,18 +10,15 @@ export const siteConfig = {
     socialLinks: [
       {
         label: 'Email',
-        href: 'mailto:lizhongpeng2@gmail.com',
-        icon: 'email'
+        href: 'mailto:lizhongpeng2@gmail.com'
       },
       {
         label: 'GitHub',
-        href: 'https://github.com/lavanceeee',
-        icon: 'github'
+        href: 'https://github.com/lavanceeee'
       },
       {
         label: 'Zhihu',
-        href: 'https://www.zhihu.com/people/li-he-han-50',
-        icon: 'zhihu'
+        href: 'https://www.zhihu.com/people/li-he-han-50'
       }
     ]
   }

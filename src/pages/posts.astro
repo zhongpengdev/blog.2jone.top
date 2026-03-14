@@ -2,28 +2,20 @@
 import Layout from '../layouts/Layout.astro';
 import PostsList from '../components/PostsList.astro';
 import { getPosts } from '../data/content';
-import { paginateItems } from '../data/pagination';
 
-const allPosts = getPosts();
-const pagination = paginateItems(allPosts, 1);
+const posts = getPosts();
 ---
 
 <Layout title="Posts | zhongpeng">
   <section class="posts-page">
     <header class="posts-page__header">
       <h1 class="posts-page__title">Posts</h1>
-      <p class="posts-page__count">{allPosts.length} writings</p>
+      <p class="posts-page__count">{posts.length} writings</p>
     </header>
 
     {
-      allPosts.length > 0 ? (
-        <PostsList
-          posts={pagination.items}
-          pagination={{
-            ...pagination,
-            basePath: '/posts/'
-          }}
-        />
+      posts.length > 0 ? (
+        <PostsList posts={posts} />
       ) : (
         <div class="posts-page__empty">
           <p>No posts yet in <code>src/content/posts</code>.</p>

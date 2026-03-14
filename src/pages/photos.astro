@@ -1,5 +1,5 @@
 ---
-import PhotoGallery from '../components/PhotoGallery.vue';
+import PhotoGallery from '../components/PhotoGallery.astro';
 import { getPhotos } from '../data/photos';
 import Layout from '../layouts/Layout.astro';
 
@@ -16,7 +16,7 @@ const photos = getPhotos();
       </p>
     </header>
 
-    <PhotoGallery client:idle photos={photos} />
+    <PhotoGallery photos={photos} />
   </section>
 </Layout>
 
