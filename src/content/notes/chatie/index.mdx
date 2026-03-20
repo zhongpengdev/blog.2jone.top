@@ -21,8 +21,8 @@ GPT4IE重构: [https://github.com/lavanceeee/GPT4IE](https://github.com/lavancee
 
 通过本次项目实践，我在工程化能力上得到了很大提升。**在 Linux 使用与服务管理 方面更加熟练**，掌握了编写和配置 service 文件的方法，并能灵活运用启动、停止与重启等相关命令。在前端部署上突破了以往的困难，**能够独立编写 Nginx 配置文件并顺利完成前端界面的部署**。与此同时，在后端部署方面也得到了进一步巩固与深化，能够熟练地使用 Gunicorn 部署后端项目，**并通过 systemd 实现进程的高效管理**。同时让我在自动化运维方面**初步掌握了 GitHub Actions 的使用**，认识到其在 CI/CD 自动化中的重要作用，但在编写 YAML 配置文件上仍需进一步实践与积累。
 
-在代码编写方面，我进一步加深了对 **Vue3 父子组件通信机制** 的理解，明确了父组件与子组件之间通过 `defineProps` 和 `emit 信号机制` 实现数据与事件传递。这一点与我在之前的 [PyQt 项目](https://github.com/lavanceeee/Michelson-Fringe-Counting-py)
-中掌握的 Qt 信号槽机制 有一定相似性，因此理解起来较为顺利。Vue3 的信号槽机制不仅简洁，而且能够有效提升组件的内聚性和前端项目的工程化水平。我还知道了 Netlify 部署中使用的 Edge Functions 本质上运行在 Node.js 环境下，因此在编写函数时需要遵循 CommonJS 语法，或者显式启用 ESM 模块支持，以确保代码兼容性。
+在代码编写方面，我进一步加深了对 **Vue3 父子组件通信机制** 的理解，明确了父组件与子组件之间通过 `defineProps` 和 `emit 信号机制` 实现数据与事件传递。这一点与我在之前的 [PyQt 项目](https://github.com/lavanceeee/Michelson-Fringe-Counting-python)
+中掌握的 Qt 信号槽机制 有一定相似性，因此理解起来较为顺利。Vue3 的信号槽机制不仅简洁，而且能够有效提升组件的内聚性和前端项目的工程化水平。我还知道了 Netlify 部署中使用的 Edge Functions 本质上运行在 Node.js 环境下，因此在编写函数时需要遵循 Commonjs 语法，或者显式启用 ESM 模块支持，以确保代码兼容性。
 
 我发现了我目前存在的许多不足之处。**其中最大的问题在于科研素养不足：对于一个问题无法从专业性，系统性，纯理论化的角度去看待它**。或者说，我的基础学科知识储备很少，少到我不知道它的底层原理实现是怎么样的。即使是一点点查询关于这个领域的知识，我也会被一长串的公式吓住：虽然我学习了线性代数，高等数学等知识，可是有时看到一个公式甚至完全看不懂它在说什么，说到底，我只是会考试的机器，并没有真正理解公式本身。上述便是我这些天或者说近几个月发现的自身的最大的问题，也是我接下来一年的努力方向，去尽快补上我那少得可怜的基础知识。
 
@@ -36,7 +36,7 @@ GPT4IE重构: [https://github.com/lavanceeee/GPT4IE](https://github.com/lavancee
 
 但传统方法存在着明显的局限性如：标注成本高昂，单个领域的数据标注往往需要数万至数十万的人工投入[^](https://startup.aliyun.com/info/1065921.html)；模型的领域适应性较差，在新领域上性能急剧下降；对长尾实体和复杂关系的识别能力有限。
 
-北京交通大学的CoLa-lab提出了使用ChatGPT等大模型实现零样本信息抽取的方法并通过JS和Python等编程语言做了实现。
+北京交通大学的CoLa-lab提出了使用ChatGPT等大模型实现零样本信息抽取的方法并通过js和python等编程语言做了实现。
 
 ## Zero-Shot Information Extraction 🐬
 
@@ -92,7 +92,7 @@ ChatIE/
 │  │  ├─ MainContainer.vue
 │  │  ├─ MainPage.vue
 │  │  ├─ NetworkVis.vue
-│  │  └─ ResultSection.vue
+│  │  └─ Resultsection.vue
 │  ├─ composables/
 │  │  ├─ api.js
 │  │  ├─ callAPI.js
@@ -108,7 +108,7 @@ ChatIE/
 │  ├─ main.js
 │  └─ style.css
 ├─ .gitignore
-├─ app.py
+├─ app.python
 ├─ index.html
 ├─ package-lock.json
 ├─ package.json
@@ -133,7 +133,7 @@ ChatIE/
     :isLoading="isLoading"
   />
   <NetworkVis :response-data="result" />
-  <ResultSection :response-data="result" />
+  <Resultsection :response-data="result" />
 </template>
 ```
 `FormSection`组件采用双向通信机制，并由watch监听实现双向数据同步：通过 `defineProps` 接收父组件状态，通过emit向上发射事件信号。组件内部维护本地reactive状态副本，watch监听实现用户输入并上报：
@@ -165,7 +165,7 @@ const submmitInput = () => {
 </script>
 ```
 
-`NetworkVis`, `ResultSection` 组件采用单向数据传递，仅接受父组件传递的数据，分别实现数据可视化和markdown格式表格转化过程。可视化组件代码如下：
+`NetworkVis`, `Resultsection` 组件采用单向数据传递，仅接受父组件传递的数据，分别实现数据可视化和markdown格式表格转化过程。可视化组件代码如下：
 
 ```js
 <script setup>
@@ -184,17 +184,17 @@ watch(() => props.responseData, (newValue) => {
 });
 </script>
 ```
-通过emit信号槽与props的组合使用，实现了视图组件的完全解耦：`MainContainer` 作为协调器管理全局状态，`FormSection` 作为交互组件承担用户输入的收集与表单上报，`NetworkVis` 与 `ResultSection` 作为展示组件专注数据渲染。这种架构模式确保了组件职责的单一性，每个组件都可以独立开发、测试与维护，同时也是大型前端项目规范化的最佳实践。
+通过emit信号槽与props的组合使用，实现了视图组件的完全解耦：`MainContainer` 作为协调器管理全局状态，`FormSection` 作为交互组件承担用户输入的收集与表单上报，`NetworkVis` 与 `Resultsection` 作为展示组件专注数据渲染。这种架构模式确保了组件职责的单一性，每个组件都可以独立开发、测试与维护，同时也是大型前端项目规范化的最佳实践。
 
 ### Controller
 
-`loadPattern` 模块负责根据全局状态动态加载模板匹配规则。在接收到用户数据后，该模块首先检查用户自定义的匹配模式是否存在，若存在则直接加载并存入全局状态；否则根据用户语言和模型类型，从默认 JSON 文件中加载匹配规则。
+`loadPattern` 模块负责根据全局状态动态加载模板匹配规则。在接收到用户数据后，该模块首先检查用户自定义的匹配模式是否存在，若存在则直接加载并存入全局状态；否则根据用户语言和模型类型，从默认 jsON 文件中加载匹配规则。
 
 ```js
 export async function loadPattern() {
   try {
     if (storeData.getUsersPattern()) {
-      const pattern = JSON.parse(storeData.getUsersPattern());
+      const pattern = jsON.parse(storeData.getUsersPattern());
       storeData.setPattern(pattern);
     } else {
       const language = storeData.getLanguage();
@@ -212,7 +212,7 @@ export async function loadPattern() {
       storeData.setPattern(default_pattern);
     }
   } catch (error) {
-    throw new Error(`不合法的JSON格式，请检查：${error}`);
+    throw new Error(`不合法的jsON格式，请检查：${error}`);
   }
 }
 ```
@@ -240,7 +240,7 @@ export async function buildPrompt(stage) {
 
 ```js
 export function replacePrompt(stage, orginal_prompt, result_of_stage1) {
-  const sentence = storeData.getSentence();
+  const sentence = storeData.getsentence();
   const model = storeData.getModel();
   const pattern = storeData.getPattern();
 
@@ -268,14 +268,14 @@ export function replacePrompt(stage, orginal_prompt, result_of_stage1) {
           orginal_prompt = orginal_prompt.replace("$sentence", sentence);
           prompt = orginal_prompt.replace(
             "$etl",
-            JSON.stringify(pattern["etl"])
+            jsON.stringify(pattern["etl"])
           );
           break;
 
         case "stage_2":
           orginal_prompt = orginal_prompt.replace(
             "$etl",
-            JSON.stringify(pattern["etl"])
+            jsON.stringify(pattern["etl"])
           );
           prompt = orginal_prompt.replace("$first_stage", result_of_stage1);
 
@@ -331,14 +331,14 @@ function convertRE(markdown) {
 }
 ```
 
-通过逻辑分层与解耦，我将原项目中以 Python 实现的核心逻辑用 JavaScript 进行了模块化重构，从全局状态管理到功能实现，再到工具函数支撑，形成了清晰的层次结构，同时也实现了两阶段的对话提升抽取精度，渐进式理解最大化准确性，并结合策略模式实现对 RE/NER/EE 三类模型的统一支持；利用 JSON 配置实现参数化模板，支持多语言、多模型的灵活配置，也极大地减少了重复代码的编写，具备良好的扩展性。
+通过逻辑分层与解耦，我将原项目中以 python 实现的核心逻辑用 JavaScript 进行了模块化重构，从全局状态管理到功能实现，再到工具函数支撑，形成了清晰的层次结构，同时也实现了两阶段的对话提升抽取精度，渐进式理解最大化准确性，并结合策略模式实现对 RE/NER/EE 三类模型的统一支持；利用 jsON 配置实现参数化模板，支持多语言、多模型的灵活配置，也极大地减少了重复代码的编写，具备良好的扩展性。
 
 ### CI/CD
 
 后端部分仅使用 Flask 作为请求转发层，将密钥安全地存放在服务器端，并通过环境变量读取，避免硬编码暴露，从而有效提升整体的安全性与可维护性。结合 GitHub Actions，使用 Gunicorn 部署后端后，实现代码推送后的自动化部署与服务重启：
 
 
-```Python
+```python
 
 app = Flask(__name__)
 
@@ -397,7 +397,7 @@ def call_doubao_api():
 
 ### Flask项目部署
 
-Gunicorn是一个Python WSGI Http服务器，专为生产环境设计，比起Flask自带服务器来说，支持多进程/多线程，负载均衡等，更加稳定，性能更好。
+Gunicorn是一个python WSGI Http服务器，专为生产环境设计，比起Flask自带服务器来说，支持多进程/多线程，负载均衡等，更加稳定，性能更好。
 
 ```ini
 pip insatll gunicorn

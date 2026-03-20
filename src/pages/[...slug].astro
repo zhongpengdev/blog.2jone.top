@@ -1,26 +1,32 @@
 ---
-import ArticleLayout from '../layouts/ArticleLayout.astro';
-import { getAllContentPages } from '../data/content';
+import MdxArticleLayout from '../layouts/MdxArticleLayout.astro';
+import { getAllContentPages, getContentPageBySlug } from '../data/content';
 
-export function getStaticPaths() {
-  return getAllContentPages().map((entry) => ({
+export async function getStaticPaths() {
+  const entries = await getAllContentPages();
+
+  return entries.map((entry) => ({
     params: {
       slug: entry.slug.replace(/^\/+|\/+$/g, '')
-    },
-    props: {
-      entry
     }
   }));
 }
 
-const { entry } = Astro.props;
+const slug = `/${Astro.params.slug ?? ''}`;
+const entry = await getContentPageBySlug(slug);
+
+if (!entry) {
+  throw new Error(`Content not found for slug: ${slug}`);
+}
+
 const Content = entry.Content;
 ---
 
-<ArticleLayout
+<MdxArticleLayout
   title={entry.title}
   date={entry.formattedDate}
   description={entry.description}
 >
   <Content />
-</ArticleLayout>
+</MdxArticleLayout>
+

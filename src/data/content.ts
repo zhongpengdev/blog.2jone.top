@@ -11,6 +11,8 @@ type ContentModule = {
   Content?: unknown;
 };
 
+type ContentModuleLoader = () => Promise<ContentModule>;
+
 export type ContentListItem = {
   title: string;
   date: string;
@@ -24,13 +26,9 @@ export type ContentPage = ContentListItem & {
   Content: ContentModule['Content'];
 };
 
-const postModules = import.meta.glob('../content/posts/*/index.{md,mdx}', {
-  eager: true
-}) as Record<string, ContentModule>;
+const postModules = import.meta.glob('../content/posts/*/index.{md,mdx}') as Record<string, ContentModuleLoader>;
 
-const noteModules = import.meta.glob('../content/notes/*/index.mdx', {
-  eager: true
-}) as Record<string, ContentModule>;
+const noteModules = import.meta.glob('../content/notes/*/index.mdx') as Record<string, ContentModuleLoader>;
 
 const normalizeSlug = (value: string) => {
   if (!value) {
@@ -76,33 +74,45 @@ const normalizeTags = (value: Frontmatter['tags']) => {
     .filter((tag): tag is { name: string; slug: string } => Boolean(tag));
 };
 
-const toPages = (modules: Record<string, ContentModule>): ContentPage[] =>
-  Object.values(modules)
-    .map((module) => {
-      const frontmatter = module.frontmatter ?? {};
+const toPage = async (loadModule: ContentModuleLoader): Promise<ContentPage | null> => {
+  const module = await loadModule();
+  const frontmatter = module.frontmatter ?? {};
 
-      if (!frontmatter.title || !frontmatter.date || !frontmatter.slug || !module.Content) {
-        return null;
-      }
+  if (!frontmatter.title || !frontmatter.date || !frontmatter.slug || !module.Content) {
+    return null;
+  }
 
-      return {
-        title: frontmatter.title,
-        date: frontmatter.date,
-        formattedDate: formatDate(frontmatter.date),
-        slug: normalizeSlug(frontmatter.slug),
-        description: frontmatter.description,
-        tags: normalizeTags(frontmatter.tags),
-        Content: module.Content
-      };
-    })
+  return {
+    title: frontmatter.title,
+    date: frontmatter.date,
+    formattedDate: formatDate(frontmatter.date),
+    slug: normalizeSlug(frontmatter.slug),
+    description: frontmatter.description,
+    tags: normalizeTags(frontmatter.tags),
+    Content: module.Content
+  };
+};
+
+const toPages = async (modules: Record<string, ContentModuleLoader>): Promise<ContentPage[]> => {
+  const pages = await Promise.all(Object.values(modules).map((loadModule) => toPage(loadModule)));
+
+  return pages
     .filter((item): item is ContentPage => Boolean(item))
     .sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime());
+};
 
-const posts = toPages(postModules);
-const notes = toPages(noteModules);
+export const getPosts = async (): Promise<ContentListItem[]> => toPages(postModules);
 
-export const getPosts = (): ContentListItem[] => posts;
+export const getNotes = async (): Promise<ContentListItem[]> => toPages(noteModules);
 
-export const getNotes = (): ContentListItem[] => notes;
+export const getAllContentPages = async (): Promise<ContentPage[]> => {
+  const [posts, notes] = await Promise.all([getPosts(), getNotes()]);
+  return [...posts, ...notes];
+};
 
-export const getAllContentPages = (): ContentPage[] => [...posts, ...notes];
+export const getContentPageBySlug = async (slug: string): Promise<ContentPage | undefined> => {
+  const normalizedSlug = normalizeSlug(slug);
+  const pages = await getAllContentPages();
+
+  return pages.find((page) => page.slug === normalizedSlug);
+};

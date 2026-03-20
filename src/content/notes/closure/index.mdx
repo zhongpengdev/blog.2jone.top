@@ -2,12 +2,12 @@
 title: 函数闭包
 slug: "/notes/about-closure"
 date: 2025-11-09
-description: "Understanding Python closures and decorators: how inner functions retain access to outer scope variables, cell objects in memory, and their application in decorators."
+description: "Understanding python closures and decorators: how inner functions retain access to outer scope variables, cell objects in memory, and their application in decorators."
 ---
 
 不妨先看一下普通函数对局部变量的状态管理是怎么样的：
 
-```py
+```python
 def func():
     sum = 0
     sum += 1
@@ -24,10 +24,10 @@ func() # 1
 
 上述是普通函数对变量的管理方式：函数销毁，其栈帧上存活的局部变量跟着一起消失。那么如果我们想在外层函数结束时，仍保持函数内部变量的持久化该怎么实现呢？这就引出了函数闭包的概念。
 
-函数闭包(Closure)通过在一个函数内部定义一个嵌套函数，并在内部函数中使用外部函数的局部变量。即使外部函数执行完毕，这时它的内部局部变量按理会消失，但因为内部函数还在引用该外部变量，在外部函数中定义的局部变量并不会被GC回收，Python，JS等语言为这个内部函数持续保留这个外部变量引用的结构就是闭包。
+函数闭包(Closure)通过在一个函数内部定义一个嵌套函数，并在内部函数中使用外部函数的局部变量。即使外部函数执行完毕，这时它的内部局部变量按理会消失，但因为内部函数还在引用该外部变量，在外部函数中定义的局部变量并不会被GC回收，python，js等语言为这个内部函数持续保留这个外部变量引用的结构就是闭包。
 
 代码示例如下：
-```PY
+```python
 def outer_func():
     count = 0
 
@@ -59,7 +59,7 @@ print(outer_func_01(4)) # 9
 
 通过 `outer_fun_01.__closure__` 我们可以查看在 `inner_func`对象中创建的Cell对象，即被闭包函数所引用的变量：
 
-```py
+```python
 def outer_func():
     count = 0
     sum = 1.0
@@ -93,7 +93,7 @@ print(outer_fun_01.__closure__[0].cell_contents) # 0
 
 python的装饰器底层就是闭包函数，而我们常见的 `@wrapper` 的形式是封装的语法糖。
 
-```py
+```python
 def wrapper(func):
     def inner(*args, **kwargs):
         print("this will display before func")
@@ -119,7 +119,7 @@ this will display after func executed
 ```
 
 使用python的装饰器语法糖我们无需通过 `func = wrapper(func)` 手动创建wrapper对象，而是可以简洁地调用 `func` 的函数实现同样的效果：
-```py
+```python
 def wrapper(func):
     def inner(*args, **kwargs):
         print("this will display before func")
@@ -147,7 +147,7 @@ this will display after func executed
 
 我们也可以试着分析一下嵌套了多层装饰器的函数代码：
 
-```py
+```python
 def A(func):
     def inner():
         print("A before")

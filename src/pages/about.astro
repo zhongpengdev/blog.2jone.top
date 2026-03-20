@@ -3,7 +3,7 @@ import HomeAboutShell from '../components/HomeAboutShell.astro';
 import { getNotes } from '../data/content';
 import Layout from '../layouts/Layout.astro';
 
-const notes = getNotes();
+const notes = await getNotes();
 ---
 
 <Layout title="About | zhongpeng">

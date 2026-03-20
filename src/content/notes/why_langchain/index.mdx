@@ -37,7 +37,7 @@ async def query_unpaid_bills(status: int = 0) -> str:
 用户说"我有哪些待缴费用"，AI 会：
 1. 理解意图：用户想查账单
 2. 选工具：调用 `query_unpaid_bills`
-3. 拿结果：解析返回的 JSON
+3. 拿结果：解析返回的 jsON
 4. 回复：用自然语言告诉用户
 
 ### 智能天气查询
@@ -99,7 +99,7 @@ async def generate_image_from_text(
         n: 生成数量, 默认为 1 (API限制通常为1-4)
 
     Returns:
-        生成的图片URL的JSON字符串
+        生成的图片URL的jsON字符串
     """
     headers = {
         "Authorization": f"Bearer {API_KEY}",
@@ -114,7 +114,7 @@ async def generate_image_from_text(
     }
 
     try:
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.Clientsession() as session:
             # 提交任务
             async with session.post(
                 CREATE_TEXT_URL, headers=headers, json=payload
@@ -227,7 +227,7 @@ async def generate_image_from_text(
 
 ### 工具管理
 
-所有工具统一在 `app/tools/__init__.py` 导出：
+所有工具统一在 `app/tools/__init__.python` 导出：
 
 ```python
 from app.tools.community.bills_tools import query_unpaid_bills
@@ -346,7 +346,7 @@ async def get_agent_response_stream(user_id: str, session_id: int, user_input: s
 
 LangChain 提供了一套把 AI 和业务系统连起来的方法论。结合 Function Calling，以及LangGraph的会话记忆功能，AI 自己就能决定该干什么，对于一个完善的AI智能体来说是必不可少的。
 
-项目地址：[lavanceeee/communitys-agent-banked-py](https://github.com/lavanceeee/communitys-agent-banked-py)
+项目地址：[lavanceeee/communitys-agent-banked-python](https://github.com/lavanceeee/communitys-agent-banked-python)
 
 技术栈：FastAPI · LangChain · LangGraph · 通义千问 · WebSocket
 

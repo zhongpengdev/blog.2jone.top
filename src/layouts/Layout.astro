@@ -1,6 +1,7 @@
 ---
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
+import { ClientRouter } from 'astro:transitions';
 import { siteConfig } from '../config/site';
 import siteAvatar from '../assets/site-avatar.png';
 import geistMonoBold from '../assets/fonts/GeistMono-Bold.ttf';
@@ -17,6 +18,7 @@ const { title = siteConfig.title } = Astro.props;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
+    <ClientRouter />
     <link rel="icon" type="image/png" href={siteAvatar.src} />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
@@ -49,89 +51,6 @@ const { title = siteConfig.title } = Astro.props;
         socialLinks={siteConfig.footer.socialLinks}
       />
     </main>
-
-    <script is:inline>
-      (() => {
-        if (window.__littleBlogPageTransitionInit) return;
-        window.__littleBlogPageTransitionInit = true;
-
-        const TRANSITION_KEY = 'little-blog-pending-navigation';
-
-        const normalizePath = (value) => {
-          if (!value) return '/';
-          const withLeadingSlash = value.startsWith('/') ? value : `/${value}`;
-          const normalized = withLeadingSlash.replace(/\/{2,}/g, '/');
-          return normalized === '/' ? normalized : normalized.replace(/\/+$/, '');
-        };
-
-        const isModifiedEvent = (event) =>
-          event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0;
-
-        const persistPendingNavigation = (url) => {
-          try {
-            sessionStorage.setItem(
-              TRANSITION_KEY,
-              JSON.stringify({
-                from: normalizePath(window.location.pathname),
-                to: normalizePath(url.pathname),
-                at: Date.now(),
-              }),
-            );
-          } catch {
-            // Ignore storage failures and fall back to plain navigation.
-          }
-        };
-
-        document.addEventListener('click', (event) => {
-          const link = event.target.closest('a[href]');
-          if (!(link instanceof HTMLAnchorElement)) return;
-          if (event.defaultPrevented || isModifiedEvent(event)) return;
-          if (link.classList.contains('skip-link')) return;
-          if (link.target && link.target !== '_self') return;
-          if (link.hasAttribute('download')) return;
-
-          const rawHref = link.getAttribute('href') || '';
-          if (
-            !rawHref ||
-            rawHref.startsWith('mailto:') ||
-            rawHref.startsWith('tel:') ||
-            rawHref.startsWith('javascript:')
-          ) {
-            return;
-          }
-
-          const url = new URL(link.href, window.location.href);
-          if (url.origin !== window.location.origin) return;
-
-          const currentUrl = new URL(window.location.href);
-          const isHashOnlyNavigation =
-            url.pathname === currentUrl.pathname &&
-            url.search === currentUrl.search &&
-            url.hash &&
-            url.hash !== currentUrl.hash;
-
-          if (isHashOnlyNavigation) return;
-
-          const targetPath = normalizePath(url.pathname);
-          const shell = document.querySelector('[data-home-about-shell]');
-          const isShellTarget = targetPath === '/' || targetPath === '/about';
-
-          if (shell && isShellTarget) {
-            return;
-          }
-
-          if (
-            targetPath === normalizePath(currentUrl.pathname) &&
-            url.search === currentUrl.search &&
-            url.hash === currentUrl.hash
-          ) {
-            return;
-          }
-
-          persistPendingNavigation(url);
-        });
-      })();
-    </script>
   </body>
 </html>
 

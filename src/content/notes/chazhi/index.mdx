@@ -368,7 +368,7 @@ k = 78.5700
 对于非线性拟合，我们也可以直接选用 `scipy.optimize.curve_fit` 进行求解，具体参数说明请查看[官方文档](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.curve_fit.html)。
 
 #### python实现
-```py withLineNumbers highlight=14
+```python withLineNumbers highlight=14
 import numpy as np
 from scipy.optimize import curve_fit
 
@@ -400,7 +400,7 @@ c=0.3995
 #### 问题重述
 ![q3](./fig/fei_q3.jpg)
 
-```py withLineNumbers highlight=7-8,11-12,18
+```python withLineNumbers highlight=7-8,11-12,18
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
@@ -430,7 +430,7 @@ print(f"拟合数据：u1={u1:.4f}, u2={u2:.4f}, u3={u3:.4f}")
 ```
 
 #### 绘图
-```py
+```python
 fig = plt.figure(figsize=(10,5))
 ax1 = fig.add_subplot(121, projection='3d')
 ax1.plot_surface(X, Y, z_real.reshape(X.shape), cmap='viridis')

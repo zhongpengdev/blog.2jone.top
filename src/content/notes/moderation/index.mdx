@@ -103,7 +103,7 @@ export default defineEventHandler(async (event) => {
 });
 ```
 
-在工具函数中定义审查接口的调用，需要注意的是，这里的response返回的是JSON，需要手动解析。
+在工具函数中定义审查接口的调用，需要注意的是，这里的response返回的是jsON，需要手动解析。
 ```ts
 //内容审查
 export async function checkText(text: string) {
@@ -115,7 +115,7 @@ export async function checkText(text: string) {
             }
         }) as any;
 
-        const result = JSON.parse(res);
+        const result = jsON.parse(res);
 
         if (result.conclusionType != 1) {
             ElMessage.error('内容可能包含不合理内容，请重新输入！');

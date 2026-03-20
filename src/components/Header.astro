@@ -122,7 +122,6 @@ const isShellPage = isHomePage || normalizedCurrentPath === '/about';
   (() => {
     if (window.__littleBlogHeaderInit) return;
     window.__littleBlogHeaderInit = true;
-    const TRANSITION_KEY = 'little-blog-pending-navigation';
 
     const normalizePath = (value) => {
       if (!value) return '/';
@@ -131,35 +130,19 @@ const isShellPage = isHomePage || normalizedCurrentPath === '/about';
       return normalized === '/' ? normalized : normalized.replace(/\/+$/, '');
     };
 
-    const isShellPath = (value) => {
-      const path = normalizePath(value);
-      return path === '/' || path === '/about';
-    };
+    const triggerPulse = () => {
+      const headers = document.querySelectorAll('[data-site-header]');
+      headers.forEach((header) => {
+        header.classList.add('site-header__brand-nav--pulse');
+      });
 
-    const readPendingNavigation = () => {
-      try {
-        const raw = sessionStorage.getItem(TRANSITION_KEY);
-        if (!raw) return null;
-
-        const parsed = JSON.parse(raw);
-        if (!parsed || typeof parsed !== 'object') return null;
-
-        return {
-          from: normalizePath(parsed.from),
-          to: normalizePath(parsed.to),
-          at: typeof parsed.at === 'number' ? parsed.at : 0,
-        };
-      } catch {
-        return null;
-      }
-    };
-
-    const clearPendingNavigation = () => {
-      try {
-        sessionStorage.removeItem(TRANSITION_KEY);
-      } catch {
-        // Ignore storage failures.
-      }
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          headers.forEach((header) => {
+            header.classList.remove('site-header__brand-nav--pulse');
+          });
+        });
+      });
     };
 
     const updateHeader = (targetPath, options = {}) => {
@@ -195,8 +178,21 @@ const isShellPage = isHomePage || normalizedCurrentPath === '/about';
       });
     };
 
+    let lastPath = normalizePath(window.location.pathname);
+
+    const applyRouteChange = (path, withPulse = true) => {
+      const nextPath = normalizePath(path);
+      if (nextPath === lastPath) return;
+      updateHeader(nextPath);
+      if (withPulse) triggerPulse();
+      lastPath = nextPath;
+    };
+
     document.addEventListener('click', (event) => {
-      const link = event.target.closest('[data-brand-link]');
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+
+      const link = target.closest('[data-brand-link]');
       if (!(link instanceof HTMLAnchorElement)) return;
       if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       if (link.target && link.target !== '_self') return;
@@ -208,7 +204,7 @@ const isShellPage = isHomePage || normalizedCurrentPath === '/about';
 
       if (shell && (targetPath === '/' || targetPath === '/about')) {
         event.preventDefault();
-        updateHeader(targetPath);
+        applyRouteChange(targetPath);
         document.dispatchEvent(
           new CustomEvent('site:shell-navigate', {
             detail: {
@@ -219,53 +215,15 @@ const isShellPage = isHomePage || normalizedCurrentPath === '/about';
       }
     });
 
-    const startEntryTransition = () => {
-      const currentPath = normalizePath(window.location.pathname);
-      const pending = readPendingNavigation();
+    window.addEventListener('popstate', () => {
+      applyRouteChange(window.location.pathname);
+    });
 
-      if (
-        pending &&
-        pending.to === currentPath &&
-        pending.from !== currentPath &&
-        Date.now() - pending.at < 4000
-      ) {
-        clearPendingNavigation();
-        updateHeader(pending.from, {
-          preserveAboutLink: true,
-          syncNavLinks: true,
-        });
+    document.addEventListener('astro:after-swap', () => {
+      applyRouteChange(window.location.pathname);
+    });
 
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            updateHeader(currentPath);
-          });
-        });
-        return;
-      }
-
-      clearPendingNavigation();
-      updateHeader(currentPath);
-
-      if (!pending || isShellPath(pending.from) || isShellPath(currentPath)) {
-        return;
-      }
-
-      const headers = document.querySelectorAll('[data-site-header]');
-      headers.forEach((header) => {
-        header.classList.add('site-header__brand-nav--pulse');
-      });
-
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          headers.forEach((header) => {
-            header.classList.remove('site-header__brand-nav--pulse');
-          });
-        });
-      });
-    };
-
-    window.addEventListener('popstate', () => updateHeader());
-    startEntryTransition();
+    updateHeader(lastPath);
   })();
 </script>
 

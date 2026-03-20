@@ -2,7 +2,7 @@
 title: 记录一个代码风格混用bug
 date: 2025-08-23
 slug: "/notes/commonjs-bug"
-description: "Troubleshooting a 'module not found' error caused by mixing CommonJS and ES6 in Netlify Functions."
+description: "Troubleshooting a 'module not found' error caused by mixing Commonjs and ES6 in Netlify Functions."
 ---
 
 这是我在部署一个Netlify Function的时候遇到的，意思是找不到axios这个依赖：
@@ -24,13 +24,13 @@ description: "Troubleshooting a 'module not found' error caused by mixing Common
 
 可是结果还是不行，毕竟是找不到依赖，怎么能是排除某个东西呢。折腾了半天无果，索性直接把代码抛给了Sonnet 4：
 
-**我在代码中混用了CommonJS和ES6语法。**
+**我在代码中混用了Commonjs和ES6语法。**
 
 ## 原因分析
 
 最初提交代码如下：
 
-```JS
+```js
 import axios from "axios";
 
 const BASE_URL = "https://ark.cn-beijing.volces.com/api/v3/chat/completions";
@@ -42,16 +42,16 @@ export async function handler(event) {
     }
 ```
 
-我使用ES6语法导入了axios并声明了handler函数.结果好巧不巧的是，我之前并不知道CommonJS这回事，也没用过dotenv，直接从网上搜了怎么用就直接上手。结果呢使用 `dotenv` 加载密钥的方法是用的CommonJS的语法：
+我使用ES6语法导入了axios并声明了handler函数.结果好巧不巧的是，我之前并不知道Commonjs这回事，也没用过dotenv，直接从网上搜了怎么用就直接上手。结果呢使用 `dotenv` 加载密钥的方法是用的Commonjs的语法：
 
-```JS
+```js
 require("dotenv").config();
 ```
 那么，Netfily官方怎么说的呢?
 
 > Naming your function with the `.mjs` extension lets you use the modern ES modules syntax. To learn more about the different module formats, refer to runtime.
 
-因为Netlify的边缘函数全部跑在nodejs上，所以原生支持的是CommonJS的语法，**默认优先使用的也是这一套规范**，包括模块导入、函数定义等都有自己的统一规范。
+因为Netlify的边缘函数全部跑在nodejs上，所以原生支持的是Commonjs的语法，**默认优先使用的也是这一套规范**，包括模块导入、函数定义等都有自己的统一规范。
 
 使用ES6模块化书写netlify Function，需要使用 `xxx.mjs` 来命名该文件，同时语法混用是绝对不行的。
 

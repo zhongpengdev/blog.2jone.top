@@ -46,8 +46,9 @@ const { initialView, notes } = Astro.props;
     if (window.__littleBlogShellInit) return;
     window.__littleBlogShellInit = true;
 
-    const shell = document.querySelector('[data-home-about-shell]');
-    if (!shell) return;
+    const getShell = () => document.querySelector('[data-home-about-shell]');
+
+    if (!getShell()) return;
 
     const normalizePath = (value) => {
       if (!value) return '/';
@@ -59,6 +60,9 @@ const { initialView, notes } = Astro.props;
     const getViewFromPath = (path) => (normalizePath(path) === '/about' ? 'about' : 'home');
 
     const applyView = (view, options = {}) => {
+      const shell = getShell();
+      if (!shell) return;
+
       shell.querySelectorAll('[data-shell-panel]').forEach((panel) => {
         const isActive = panel.getAttribute('data-shell-panel') === view;
         panel.hidden = !isActive;

@@ -110,7 +110,7 @@ Unicode的补充区域从U+1000到U+10FFFF，大小为 `0x10FFFF-0x10000+1=2^20`
 举个例子：比如想得到'🤗'表情的Unicode码：
 
 
-```JS
+```js
 const str1 = '🤗';
 
 console.log(str1.charCodeAt(0)); // 55358
@@ -124,7 +124,7 @@ console.log(str1.charCodeAt(1)); // 56599
 
 拼接后再加0x10000 = 11111100100010111(0x1f917)，对应U+1F917的符号'🤗'
 
-```JS
+```js
 console.log("\u{1F917}"); // 🤗
 
 ```

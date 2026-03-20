@@ -1,0 +1,84 @@
+---
+import Layout from './Layout.astro';
+import MdxProse from '../components/MdxProse.astro';
+import 'katex/dist/katex.min.css';
+
+interface Props {
+  title: string;
+  date: string;
+  description?: string;
+}
+
+const { title, date, description } = Astro.props;
+---
+
+<Layout title={`${title} | zhongpeng`}>
+  <article class="mdx-article">
+    <header class="mdx-article__header">
+      <h1 class="mdx-article__title">{title}</h1>
+      {date && <p class="mdx-article__date">{date}</p>}
+      {description && <p class="mdx-article__description">{description}</p>}
+    </header>
+
+    <MdxProse class="mdx-article__content">
+      <slot />
+    </MdxProse>
+  </article>
+</Layout>
+
+<style>
+  .mdx-article {
+    padding-top: 2rem;
+    margin-bottom: 4rem;
+  }
+
+  .mdx-article__header {
+    display: grid;
+    gap: 0.55rem;
+    margin-bottom: 1.3rem;
+  }
+
+  .mdx-article__title {
+    margin: 0;
+    color: #000000;
+    font-size: clamp(1.85rem, 1.6rem + 1vw, 3rem);
+    line-height: 1.08;
+    letter-spacing: -0.04em;
+    font-weight: 800;
+  }
+
+  .mdx-article__date {
+    margin: 0;
+    color: #7a7a7a;
+    font-size: 0.95rem;
+    line-height: 1.8;
+    font-weight: 600;
+  }
+
+  .mdx-article__description {
+    margin: 0;
+    max-width: 60ch;
+    color: #000000;
+    font-size: 1rem;
+    line-height: 1.8;
+  }
+
+  @media (max-width: 640px) {
+    .mdx-article {
+      padding-top: 1.4rem;
+    }
+
+    .mdx-article__header {
+      margin-bottom: 1rem;
+    }
+  }
+
+  :global(:root[data-theme='dark'] .mdx-article__title),
+  :global(:root[data-theme='dark'] .mdx-article__description) {
+    color: #ffffff;
+  }
+
+  :global(:root[data-theme='dark'] .mdx-article__date) {
+    color: #a8a8a8;
+  }
+</style>
