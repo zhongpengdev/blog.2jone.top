@@ -113,9 +113,6 @@ const year = new Date().getFullYear();
 
 <script is:inline>
   (() => {
-    if (window.__littleBlogThemeToggleInit) return;
-    window.__littleBlogThemeToggleInit = true;
-
     const STORAGE_KEY = 'color-mode-preference';
     const OFFSETS = {
       dark: '0px',
@@ -159,22 +156,34 @@ const year = new Date().getFullYear();
       }
     };
 
-    document.addEventListener('click', (event) => {
-      const button = event.target instanceof Element ? event.target.closest('[data-theme-value]') : null;
-      if (!(button instanceof HTMLButtonElement)) return;
-      const mode = button.dataset.themeValue;
-      if (mode !== 'dark' && mode !== 'light' && mode !== 'system') return;
-      applyMode(mode);
-    });
+    const applyStoredMode = () => {
+      applyMode(readMode());
+    };
 
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    if (typeof mediaQuery.addEventListener === 'function') {
-      mediaQuery.addEventListener('change', syncSystemMode);
-    } else if (typeof mediaQuery.addListener === 'function') {
-      mediaQuery.addListener(syncSystemMode);
+    if (!window.__littleBlogThemeToggleInit) {
+      window.__littleBlogThemeToggleInit = true;
+
+      document.addEventListener('click', (event) => {
+        const button =
+          event.target instanceof Element ? event.target.closest('[data-theme-value]') : null;
+        if (!(button instanceof HTMLButtonElement)) return;
+        const mode = button.dataset.themeValue;
+        if (mode !== 'dark' && mode !== 'light' && mode !== 'system') return;
+        applyMode(mode);
+      });
+
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      if (typeof mediaQuery.addEventListener === 'function') {
+        mediaQuery.addEventListener('change', syncSystemMode);
+      } else if (typeof mediaQuery.addListener === 'function') {
+        mediaQuery.addListener(syncSystemMode);
+      }
+
+      document.addEventListener('astro:after-swap', applyStoredMode);
+      document.addEventListener('astro:page-load', applyStoredMode);
     }
 
-    applyMode(readMode());
+    applyStoredMode();
   })();
 </script>
 
