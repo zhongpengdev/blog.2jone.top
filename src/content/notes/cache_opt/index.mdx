@@ -75,6 +75,7 @@ private:
 ```cpp
 
 public:
+    // this->capacity = capacity;
     LRUCache(int cap): capacity(cap){}
 
     //get查询元素
@@ -85,7 +86,7 @@ public:
 
         // 被访问节点需要移动到表头
         // 使用splice高效移动链表
-        cacheList.solice(cacheList.begin(), cacheList, cacheMap[key];)
+        cacheList.solice(cacheList.begin(), cacheList, cacheMap[key]);
         return cacheMap[key] -> second; // 返回key节点的值
     }
 ```
