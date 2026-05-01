@@ -1,0 +1,64 @@
+---
+title: 一个代码风格混用bug
+date: 2025-08-23
+slug: "commonjs-bug"
+description: "Troubleshooting a 'module not found' error caused by mixing Commonjs and ES6 in Netlify Functions."
+---
+
+这是我在部署一个Netlify Function的时候遇到的，意思是找不到axios这个依赖：
+
+
+```text
+"Error: Cannot find module '/var/task/node_modules/axios/dist/node/axios.cjs'","stack":["Runtime.ImportModuleError: Error: Cannot find module '/var/task/node_modules/axios/dist/node/axios.cjs'"," 0
+```
+
+我一开始怀疑是需要手动清除缓存然后部署，结果不行。之后我问了deepseek，说建议改一下toml配置，手动排除一下axios包，可能是冲突了：
+
+```text
+[functions]
+  [functions.node_bundle]
+  external_node_modules = [
+    "axios",  
+  ]
+```
+
+可是结果还是不行，毕竟是找不到依赖，怎么能是排除某个东西呢。折腾了半天无果，索性直接把代码抛给了Sonnet 4：
+
+**我在代码中混用了Commonjs和ES6语法。**
+
+## 原因分析
+
+最初提交代码如下：
+
+```js
+import axios from "axios";
+
+const BASE_URL = "https://ark.cn-beijing.volces.com/api/v3/chat/completions";
+
+export async function handler(event) {
+  try {
+    if (process.env.NODE_ENV !== "production") {
+      require("dotenv").config();
+    }
+```
+
+我使用ES6语法导入了axios并声明了handler函数.结果好巧不巧的是，我之前并不知道Commonjs这回事，也没用过dotenv，直接从网上搜了怎么用就直接上手。结果呢使用 `dotenv` 加载密钥的方法是用的Commonjs的语法：
+
+```js
+require("dotenv").config();
+```
+那么，Netfily官方怎么说的呢?
+
+> Naming your function with the `.mjs` extension lets you use the modern ES modules syntax. To learn more about the different module formats, refer to runtime.
+
+因为Netlify的边缘函数全部跑在nodejs上，所以原生支持的是Commonjs的语法，**默认优先使用的也是这一套规范**，包括模块导入、函数定义等都有自己的统一规范。
+
+使用ES6模块化书写netlify Function，需要使用 `xxx.mjs` 来命名该文件，同时语法混用是绝对不行的。
+
+现在令我不解的是我的项目是Vite构建的，默认开启了模块化 "type": "module"可是也不识别，还是报错找不到依赖，必须强制将文件名改成 `xxx.mjs`才可以解决。
+
+
+
+
+
+

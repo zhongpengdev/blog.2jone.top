@@ -1,0 +1,35 @@
+---
+title: 一个懒加载 hook
+date: 2026-01-11
+slug: "lazyloading-hook"
+description: "Implementation of a native lazy-loading hook and an infinite scroll component in Vue, with code examples and result demonstrations."
+banner: ./result.png
+---
+
+## lazyloading Hook
+
+![Hook](./Hook.png)
+
+## Test.vue
+
+![test.vue](./test_vue.png)
+
+## Infinite Scroll实战 - 消息懒加载
+
+![Infinite_rolling](./infinite_rolling.png)
+
+## 效果
+
+![result](./result.png)
+
+## 笔记
+
+
+
+
+
+
+
+
+
+

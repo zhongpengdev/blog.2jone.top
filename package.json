@@ -1,19 +1,29 @@
 {
   "name": "littile-blog",
+  "private": true,
+  "version": "0.0.0",
   "type": "module",
-  "version": "0.0.1",
-  "engines": {
-    "node": ">=22.12.0"
-  },
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "@astrojs/mdx": "^5.0.0",
-    "astro": "^6.0.4",
-    "katex": "^0.16.38"
+    "@tailwindcss/vite": "^4.2.4",
+    "gray-matter": "^4.0.3",
+    "tailwindcss": "^4.2.4",
+    "vue": "^3.5.32",
+    "vue-router": "^5.0.6"
+  },
+  "devDependencies": {
+    "@iconify/vue": "^5.0.0",
+    "@types/node": "^24.12.2",
+    "@vitejs/plugin-vue": "^6.0.6",
+    "@vue/tsconfig": "^0.9.1",
+    "highlight.js": "^11.11.1",
+    "markdown-it": "^14.1.1",
+    "typescript": "~6.0.2",
+    "vite": "^8.0.10",
+    "vue-tsc": "^3.2.7"
   }
 }
