@@ -11,12 +11,12 @@ declare module "virtual:postIndex" {
   export default postIndex;
 }
 
-declare module "virtual:posts" {
-  const posts: Record<string, Promise<PostModule>>;
+declare module "virtual:post" {
+  const posts: Record<string, import('vue').Component>;
   export default posts;
 }
 
 declare module "virtual:pages" {
-  const pages: Record<string, Promise<PostModule>>;
+  const pages: Record<string, import('vue').Component>;
   export default pages;
 }

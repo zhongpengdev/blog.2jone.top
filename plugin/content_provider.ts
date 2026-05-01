@@ -43,9 +43,13 @@ export function postProvider(postsPath: string): Plugin {
                 slug: (data.slug || dir).replace(/^\//, ''),
                 date: data.date ? new Date(data.date) : undefined,
             };
-        }).filter(Boolean);
+        }).filter((item): item is NonNullable<typeof item> => !!item);
 
-        metadataList.sort((a, b) => +b.date! - +a.date!);
+        metadataList.sort((a, b) => {
+            const dateA = a.date ? +a.date : 0;
+            const dateB = b.date ? +b.date : 0;
+            return dateB - dateA;
+        });
         return "export default " + JSON.stringify(metadataList);
     });
 

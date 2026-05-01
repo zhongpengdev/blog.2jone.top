@@ -11,7 +11,7 @@ export function getMd() {
     if (!_md) {
         _md = new MarkdownIt({
             html: true,
-            highlight(str, lang) {
+            highlight(str: string, lang: string) {
                 if (lang && hljs.getLanguage(lang)) {
                     try {
                         return `<pre><code class="hljs language-${lang}">${hljs.highlight(str, { language: lang }).value}</code></pre>`;
@@ -22,7 +22,7 @@ export function getMd() {
         });
 
         // 自定义图片渲染规则
-        _md.renderer.rules.image = (tokens, idx, opt, env, self) => {
+        _md.renderer.rules.image = (tokens, idx, _opt, env) => {
             const token = tokens[idx];
             const srcIndex = token.attrIndex('src');
             const src = tokens[idx].attrs![srcIndex][1];
