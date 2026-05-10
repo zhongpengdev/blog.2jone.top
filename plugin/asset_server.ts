@@ -8,8 +8,6 @@ export function contentAssetPlugin(): Plugin {
         configureServer(server) {
             server.middlewares.use((req, res, next) => {
                 if (req.url?.startsWith('/content-assets/')) {
-                    // 路径格式: /content-assets/notes/cache_opt/core_cat.png
-                    // 映射到: data/notes/cache_opt/core_cat.png
                     const relativePath = req.url.slice('/content-assets/'.length);
                     const fullPath = path.resolve(process.cwd(), 'data', relativePath);
 
@@ -30,6 +28,34 @@ export function contentAssetPlugin(): Plugin {
                 }
                 next();
             });
+        },
+        // 生产构建时，将 data 目录复制到 dist/content-assets
+        closeBundle() {
+            const outDir = 'dist'; // 默认输出目录
+            const srcDir = path.resolve(process.cwd(), 'data');
+            const destDir = path.resolve(process.cwd(), outDir, 'content-assets');
+
+            if (fs.existsSync(srcDir)) {
+                console.log(`[content-asset-plugin] Copying ${srcDir} to ${destDir}...`);
+                fs.mkdirSync(destDir, { recursive: true });
+                copyRecursiveSync(srcDir, destDir);
+            }
         }
     };
+}
+
+function copyRecursiveSync(src: string, dest: string) {
+    const exists = fs.existsSync(src);
+    const stats = exists && fs.statSync(src);
+    const isDirectory = exists && stats && stats.isDirectory();
+    if (isDirectory) {
+        if (!fs.existsSync(dest)) {
+            fs.mkdirSync(dest);
+        }
+        fs.readdirSync(src).forEach((childItemName) => {
+            copyRecursiveSync(path.join(src, childItemName), path.join(dest, childItemName));
+        });
+    } else {
+        fs.copyFileSync(src, dest);
+    }
 }
