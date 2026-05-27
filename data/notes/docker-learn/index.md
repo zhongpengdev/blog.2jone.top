@@ -5,6 +5,80 @@ slug: "docker-learn-01"
 description: "Introductory notes on Docker, covering dockerfile basics, image building, container management, volume mounting, and repository operations."
 ---
 
+## pull and start
+
+通用流程：先从镜像仓库拉取镜像，再通过 `docker run` 创建并启动容器。
+
+```bash
+# 拉取镜像（默认从 Docker Hub 拉取）
+docker pull <镜像名>:<标签>
+
+# 拉取私有仓库镜像
+docker pull <仓库地址>/<镜像名>:<标签>
+# 示例：docker pull registry.example.com/my-app:v1.0
+
+# 不指定标签默认拉取 latest（不推荐，版本不固定）
+docker pull redis
+```
+
+### 通用 docker run 模板与参数解读
+
+```bash
+docker run [选项] <镜像名:标签> [容器启动命令]
+```
+
+| 参数 | 作用 | 示例 |
+|------|------|------|
+| `-d` | 后台运行容器（detach），不占用终端 | `docker run -d nginx` |
+| `--name` | 给容器指定名称，后续操作可用名称代替ID | `--name my-nginx` |
+| `-p` | 端口映射：`宿主机端口:容器端口` | `-p 8080:80` |
+| `-v` | 卷挂载：`宿主机路径:容器路径`，用于持久化数据 | `-v /data:/var/lib/mysql` |
+| `-e` | 设置环境变量，向容器内传递配置 | `-e MYSQL_ROOT_PASSWORD=123` |
+| `--restart` | 容器退出时的重启策略（见下表） | `--restart always` |
+| `--network` | 指定容器连接的网络 | `--network my-net` |
+| `-it` | 交互模式运行，进入容器终端（常用调试） | `docker run -it ubuntu bash` |
+
+**重启策略详解：**
+
+| 策略 | 行为 |
+|------|------|
+| `no` | 默认值，容器退出后不自动重启 |
+| `always` | 容器退出或宿主机重启后都会自动启动 |
+| `on-failure` | 仅容器异常退出（退出码非0）时重启 |
+| `unless-stopped` | 除非手动 `docker stop`，否则一直重启（生产环境推荐） |
+
+### 示例组合
+
+```bash
+# 最简启动
+docker run nginx
+
+# 后台运行 + 命名 + 端口映射（最常用组合）
+docker run -d --name my-nginx -p 8080:80 nginx:alpine
+
+# 完整生产级（挂载 + 重启 + 环境变量）
+docker run -d `
+  --name mysql-prod `
+  -p 3306:3306 `
+  -v /data/mysql:/var/lib/mysql `
+  -e MYSQL_ROOT_PASSWORD=Root123! `
+  -e MYSQL_DATABASE=myapp `
+  --restart unless-stopped `
+  mysql:8.0
+
+# 进入容器内部调试
+docker run -it --rm ubuntu:22.04 bash
+# --rm：容器退出后自动删除（适合一次性调试，避免残留）
+```
+
+> `--rm` 和 `-d` 一般不同时使用，`--rm` 通常在 `-it` 调试时搭配，用完即删不残留。
+
+### Pull 的最佳实践
+
+- 尽量指定具体版本标签（如 `redis:7.2-alpine`），避免使用 `latest`
+- alpine 后缀的镜像体积更小，适合生产部署
+- 从私有仓库拉取时，需先 `docker login <仓库地址>`
+
 ## dockerfile
 
 从基础镜像开始，执行安装依赖、拷贝代码、配置环境、启动应用等操作，每一步指令都会生成一个镜像层，最终所有层叠加成完整镜像。能够进行缓存复用，如果后续构建指令和文件未发生变化则可以直接复用实现增量更新。
