@@ -79,6 +79,35 @@ docker run -it --rm ubuntu:22.04 bash
 - alpine 后缀的镜像体积更小，适合生产部署
 - 从私有仓库拉取时，需先 `docker login <仓库地址>`
 
+# Docker 镜像
+
+```bash
+sudo nano /etc/docker/daemon.json
+
+{
+  "registry-mirrors": [
+    "https://docker.m.daocloud.io",
+    "https://docker.unsee.tech",
+    "https://docker.1panel.live",
+    "https://hub.rat.dev"
+  ]
+}
+
+# 更新守护进程
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+
+# 重新拉取服务
+docker run -d \
+  --name=syncclipboard-server \
+  -p 5033:5033 \
+  -e SYNCCLIPBOARD_USERNAME=zhongpeng \
+  -e SYNCCLIPBOARD_PASSWORD=zhongpeng12345 \
+  -v ~/syncclipboard-data:/app/data \
+  --restart unless-stopped \
+  jericx/syncclipboard-server:latest
+
+```
 ## dockerfile
 
 从基础镜像开始，执行安装依赖、拷贝代码、配置环境、启动应用等操作，每一步指令都会生成一个镜像层，最终所有层叠加成完整镜像。能够进行缓存复用，如果后续构建指令和文件未发生变化则可以直接复用实现增量更新。
