@@ -1,5 +1,6 @@
 import MarkdownIt from "markdown-it";
 import hljs from "highlight.js";
+import markdownItKatex from "@traptitech/markdown-it-katex";
 
 export function escapeHtml(str: string) {
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -19,6 +20,13 @@ export function getMd() {
                 }
                 return `<pre><code>${escapeHtml(str)}</code></pre>`;
             }
+        });
+
+        // 引入构建期公式渲染插件，抛错设为 false 保证鲁棒性
+        _md.use(markdownItKatex, {
+            throwOnError: false,
+            errorColor: '#cc0000',
+            strict: false
         });
 
         // 自定义图片渲染规则

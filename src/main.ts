@@ -1,5 +1,6 @@
 import { createApp, defineCustomElement } from 'vue'
 import './style.css'
+import 'katex/dist/katex.min.css'
 import router from './router'
 import App from './App.vue'
 import SmartImageCE from './components/SmartImage.ce.vue'
