@@ -1,5 +1,5 @@
 ---
-title: Linux文件锁解决是什么问题以及锁的本质问题
+title: Linux文件锁解决了什么问题以及锁的本质
 date: 2026-06-08
 slug: linux-file-lock
 ---
